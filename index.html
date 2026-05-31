@@ -170,25 +170,32 @@
         }
 
         label {
-            font-size: 16px;
-            font-weight: 400;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    font-size: 16px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    max-width: 50%;
+}
 
-        select, input[type="text"], input[type="date"], textarea {
-            background-color: transparent;
-            color: var(--input-text);
-            border: none;
-            font-size: 16px;
-            font-family: inherit;
-            text-align: right;
-            outline: none;
-            width: 60%;
-            padding: 0;
-            color: #0A84FF; 
-            cursor: pointer;
+select, input[type="text"], input[type="date"], textarea {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    font-family: inherit;
+    text-align: right;
+    outline: none;
+    flex: 1;
+    max-width: 50%;
+    margin-left: 15px;
+    padding: 0;
+    color: #0A84FF; 
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
         }
 
         input[type="date"] {
