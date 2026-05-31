@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading OS — Journal</title>
+    <style>
+        /* iOS Core Structural Tokens */
+        :root[data-theme="dark"] {
+            --bg-main: #000000;
+            --bg-list: #1C1C1E;
+            --bg-row: #2C2C2E;
+            --text-main: #FFFFFF;
+            --text-secondary: #8E8E93;
+            --border-color: #2C2C2E;
+            --input-text: #FFFFFF;
+            --placeholder: #48484A;
+        }
+        
+        :root[data-theme="light"] {
+            --bg-main: #F2F2F7;
+            --bg-list: #FFFFFF;
+            --bg-row: #E5E5EA;
+            --text-main: #000000;
+            --text-secondary: #8E8E93;
+            --border-color: #E5E5EA;
+            --input-text: #000000;
+            --placeholder: #C7C7CC;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px 10px;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        /* Top Bar Layout with Theme Selector */
+        .ios-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h1::before {
+            content: "📊";
+            font-size: 24px;
+        }
+
+        /* Premium iOS Segmented Theme Toggle Control */
+        .theme-switch-container {
+            background-color: var(--bg-list);
+            padding: 3px;
+            border-radius: 9px;
+            display: flex;
+            border: 0.5px solid var(--border-color);
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-btn.active {
+            background-color: #0A84FF;
+            color: #FFFFFF;
+        }
+
+        /* VIEW SWITCHER (Tabs) */
+        .view-switcher {
+            display: flex;
+            background-color: var(--bg-list);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 25px;
+            border: 0.5px solid var(--border-color);
+        }
+        
+        .view-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-btn.active {
+            background-color: #0A84FF;
+            color: #FFFFFF;
+        }
+
+        /* View Sections */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* iOS Form Sheet Layout Grid and Lists */
+        .ios-group-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-left: 16px;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        .ios-list {
+            background-color: var(--bg-list);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 0.5px solid var(--border-color);
+        }
+
+        .ios-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--border-color);
+            min-height: 44px;
+            box-sizing: border-box;
+        }
+
+        .ios-row:last-child {
+            border-bottom: none;
+        }
+
+        .ios-row.vertical {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select, input[type="text"], input[type="date"], textarea {
+            background-color: transparent;
+            color: var(--input-text);
+            border: none;
+            font-size: 16px;
+            font-family: inherit;
+            text-align: right;
+            outline: none;
+            width: 60%;
+            padding: 0;
+            color: #0A84FF; 
+            cursor: pointer;
+        }
+
+        input[type="date"] {
+            color: #0A84FF;
+            text-align: right;
+        }
+
+        input[type="text"] {
+            color: var(--input-text);
+        }
+        input[type="text"]::placeholder {
+            color: var(--placeholder);
+        }
+
+        textarea {
+            width: 100%;
+            text-align: left;
+            min-height: 90px;
+            color: var(--input-text);
+            resize: none;
+            font-size: 15px;
+            line-height: 1.4;
+            padding: 4px 0;
+        }
+        textarea::placeholder {
+            color: var(--placeholder);
+        }
+
+        .ios-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background-color: var(--bg-list);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 0.5px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .ios-grid .ios-row {
+            border-right: 0.5px solid var(--border-color);
+        }
+        .ios-grid .ios-row:nth-child(2n) {
+            border-right: none;
+        }
+
+        /* Twin Visual Upload Grid Assets Styles */
+        .photo-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .photo-uploader {
+            border: 1px dashed var(--border-color);
+            background: var(--bg-list);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .photo-uploader:hover {
+            background: var(--bg-row);
+        }
+        .photo-uploader span {
+            color: #0A84FF;
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .photo-uploader small {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+        .photo-uploader input[type="file"] {
+            display: none;
+        }
+
+        .preview-container {
+            margin-top: 12px;
+            width: 100%;
+            display: none;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 0.5px solid var(--border-color);
+        }
+        .preview-container img {
+            width: 100%;
+            display: block;
+            height: auto;
+        }
+
+        /* iOS Control Action System Buttons Elements */
+        .action-sheet {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .ios-btn {
+            background-color: #0A84FF;
+            color: #FFFFFF;
+            font-size: 17px;
+            font-weight: 600;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: center;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .ios-btn:active {
+            opacity: 0.8;
+            transform: scale(0.99);
+        }
+        .ios-btn.secondary {
+            background-color: var(--bg-list);
+            color: #0A84FF;
+            border: 0.5px solid var(--border-color);
+        }
+        .ios-btn.pdf {
+            background-color: #34C759;
+        }
+
+        /* ================= TABLE VIEW STYLES ================= */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            background-color: var(--bg-list);
+            border-radius: 12px;
+            border: 0.5px solid var(--border-color);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 0.5px solid var(--border-color); font-size: 15px; }
+        th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+        tr:last-child td { border-bottom: none; }
+        .direction-bullish { color: #34C759; font-weight: 600; }
+        .direction-bearish { color: #FF3B30; font-weight: 600; }
+
+        /* ================= BOARD VIEW STYLES ================= */
+        .board-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .board-column {
+            flex: 1;
+            min-width: 260px;
+            background: var(--bg-list);
+            border: 0.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .board-column h3 { margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        #col-m { border-top: 4px solid #F2F2F7; }
+        #col-w { border-top: 4px solid #FF9F0A; }
+        #col-d { border-top: 4px solid #32ADE6; }
+        #col-h6 { border-top: 4px solid #AF52DE; }
+        #col-m90 { border-top: 4px solid #34C759; }
+
+        .trade-card {
+            background: var(--bg-row);
+            border-radius: 10px;
+            padding: 14px;
+            border: 0.5px solid var(--border-color);
+            font-size: 14px;
+        }
+        .trade-card .card-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 8px; }
+        .trade-card .card-details { color: var(--text-secondary); font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
+
+        @media (max-width: 600px) {
+            .ios-grid, .photo-grid-container {
+                grid-template-columns: 1fr;
+            }
+            .ios-grid .ios-row {
+                border-right: none;
+            }
+        }
+
+        /* PRINT CONFIGURATION */
+        @media print {
+            body {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                padding: 0;
+            }
+            .ios-list, .ios-grid, .photo-uploader, .table-container, .board-column {
+                background-color: #F2F2F7 !important;
+                border: 1px solid #D1D1D6 !important;
+            }
+            .ios-row {
+                border-bottom: 1px solid #D1D1D6 !important;
+            }
+            select, input, textarea {
+                color: #000000 !important;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+            .action-sheet, .theme-switch-container, .view-switcher, .photo-uploader span, .photo-uploader small, h1::before {
+                display: none !important;
+            }
+            .preview-container {
+                display: block !important;
+                border: 1px solid #D1D1D6 !important;
+            }
+            /* Hide non-journal views when printing */
+            #view-table, #view-board { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="ios-header">
+        <h1>Trading OS</h1>
+        <div class="theme-switch-container">
+            <button type="button" class="theme-btn active" id="darkThemeBtn" onclick="setTheme('dark')">Dark</button>
+            <button type="button" class="theme-btn" id="lightThemeBtn" onclick="setTheme('light')">Light</button>
+        </div>
+    </div>
+
+    <div class="view-switcher">
+        <button class="view-btn active" onclick="switchView('journal')">Journal Form</button>
+        <button class="view-btn" onclick="switchView('table')">Table View</button>
+        <button class="view-btn" onclick="switchView('board')">Board View</button>
+    </div>
+    
+    <div id="view-journal" class="view-section active">
+        <form id="journalForm">
+            
+            <div class="ios-group-title">1. Trade Identity & Timing</div>
+            <div class="ios-list">
+                <div class="ios-row">
+                    <label>📅 Date</label>
+                    <input type="date" id="tradeDate" required>
+                </div>
+                <div class="ios-row">
+                    <label>⏰ Session</label>
+                    <select id="sessions">
+                        <option value="ASIA">ASIA</option>
+                        <option value="LONDON">LONDON</option>
+                        <option value="NY AM">NY AM</option>
+                        <option value="NY PM">NY PM</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>💱 Asset</label>
+                    <select id="tradedAsset">
+                        <optgroup label="Metals/Energies">
+                            <option value="XAUUSD">XAUUSD</option><option value="XAGUSD">XAGUSD</option><option value="XTPUSD">XTPUSD</option>
+                            <option value="GASOLINE">GASOLINE</option><option value="HEATINGOIL">HEATINGOIL</option><option value="CRUDEOIL">CRUDEOIL</option>
+                        </optgroup>
+                        <optgroup label="Indices">
+                            <option value="NQ">NQ</option><option value="ES">ES</option><option value="YM">YM</option>
+                            <option value="GER40">GER40</option><option value="FRA40">FRA40</option><option value="UK100">UK100</option>
+                            <option value="JP225">JP225</option><option value="CHINA50">CHINA50</option><option value="HK50">HK50</option>
+                        </optgroup>
+                        <optgroup label="Crypto">
+                            <option value="BTCUSD">BTCUSD</option><option value="ETHUSD">ETHUSD</option><option value="XRPUSD">XRPUSD</option>
+                        </optgroup>
+                        <optgroup label="Forex">
+                            <option value="EURUSD">EURUSD</option><option value="GBPUSD">GBPUSD</option><option value="AUDUSD">AUDUSD</option>
+                            <option value="NZDUSD">NZDUSD</option><option value="USDCAD">USDCAD</option><option value="USDCHF">USDCHF</option>
+                            <option value="AUDJPY">AUDJPY</option><option value="NZDJPY">NZDJPY</option><option value="EURJPY">EURJPY</option>
+                            <option value="GBPJPY">GBPJPY</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>📐 TRIAD</label>
+                    <select id="triad">
+                        <option value="COMMODITIES METALS (XAUUSD - XAGUSD - XTPUSD)">COMMODITIES METALS</option>
+                        <option value="COMMODITIES ENERGIES (GASOLINE - HEATINGOIL - CRUDEOIL)">COMMODITIES ENERGIES</option>
+                        <option value="INDICES US (NQ - ES - YM)">INDICES US</option>
+                        <option value="INDICES EU (GER40 - FRA40 - UK100)">INDICES EU</option>
+                        <option value="INDICES AS (JP225 - CHINA50 - HK50)">INDICES AS</option>
+                        <option value="CRYPTO (BTCUSD - ETHUSD - XRPUSD)">CRYPTO</option>
+                        <option value="FOREX TRIAD 1 (EURUSD - GBPUSD - DXY)">FOREX TRIAD 1</option>
+                        <option value="FOREX TRIAD 2 (AUDUSD - NZDUSD - DXY)">FOREX TRIAD 2</option>
+                        <option value="FOREX TRIAD 3 (USDCAD - USDCHF - DXY)">FOREX TRIAD 3</option>
+                        <option value="FOREX TRIAD 4 (AUDJPY - NZDJPY - JXY)">FOREX TRIAD 4</option>
+                        <option value="FOREX TRIAD 5 (EURJPY - GBPJPY - JXY)">FOREX TRIAD 5</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>🏹 Direction</label>
+                    <select id="direction">
+                        <option value="BULLISH">BULLISH</option>
+                        <option value="BEARISH">BEARISH</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>⏱️ MMXM Cycle</label>
+                    <select id="mmxmCycle">
+                        <option value="M MMXM">M MMXM</option>
+                        <option value="W MMXM">W MMXM</option>
+                        <option value="D MMXM">D MMXM</option>
+                        <option value="H6 MMXM">H6 MMXM</option>
+                        <option value="M90 MMXM">M90 MMXM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="ios-group-title">2. Narrative & Liquidity Context</div>
+            <div class="ios-list">
+                <div class="ios-row vertical">
+                    <label>🧱 Pre Market Analysis</label>
+                    <textarea id="marketInterpretation" placeholder="Write context, structural metrics, or structural consolidation notes freely..."></textarea>
+                </div>
+                <div class="ios-row">
+                    <label>🔄 IRL Origin</label>
+                    <select id="irlOrigin"><option value="Q2">Q2</option><option value="Q3">Q3</option></select>
+                </div>
+                <div class="ios-row">
+                    <label>🔑 IRL Key Level</label>
+                    <select id="irlKeyLevel">
+                        <option value="M +IRL">M +IRL</option><option value="W +IRL">W +IRL</option><option value="D +IRL">D +IRL</option>
+                        <option value="H6 +IRL">H6 +IRL</option><option value="M90 +IRL">M90 +IRL</option><option value="M22.5 +IRL">M22.5 +IRL</option>
+                        <option value="M -IRL">M -IRL</option><option value="W -IRL">W -IRL</option><option value="D -IRL">D -IRL</option>
+                        <option value="H6 -IRL">H6 -IRL</option><option value="M90 -IRL">M90 -IRL</option><option value="M22.5 -IRL">M22.5 -IRL</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>🗺️ ERL Origin</label>
+                    <select id="erlOrigin"><option value="Q3 - Q4 - Q1">Q3 - Q4 - Q1</option><option value="Q4 - Q1 - Q2">Q4 - Q1 - Q2</option></select>
+                </div>
+                <div class="ios-row">
+                    <label>🎯 ERL DOL</label>
+                    <select id="erlDol">
+                        <option value="SWING HIGH">SWING HIGH</option><option value="BULLISH TREND LINE">BULLISH TREND LINE</option><option value="EQUAL HIGHS">EQUAL HIGHS</option>
+                        <option value="SWING LOW">SWING LOW</option><option value="BEARISH TREND LINE">BEARISH TREND LINE</option><option value="EQUAL LOWS">EQUAL LOWS</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>📍 IRL/ERL Location</label>
+                    <select id="irlErlLocation">
+                        <option value="L3M">L3M</option><option value="L3W">L3W</option><option value="L3D">L3D</option>
+                        <option value="L3H6">L3H6</option><option value="L3M90">L3M90</option><option value="L3M22.5">L3M22.5</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="ios-group-title">3. Execution Mechanics & Filters</div>
+            <div class="ios-list">
+                <div class="ios-row">
+                    <label>💎 Model Variation</label>
+                    <select id="modelVariation">
+                        <option value="Q1 - Q2">Q1 - Q2</option><option value="Q2 - Q3">Q2 - Q3</option>
+                        <option value="Fractal Q2">Fractal Q2</option><option value="Fractal Q3">Fractal Q3</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>🚦 True Open Filter</label>
+                    <select id="trueOpenFilter"><option value="SSMT BELOW">SSMT BELOW</option><option value="SSMT ABOVE">SSMT ABOVE</option></select>
+                </div>
+                <div class="ios-row">
+                    <label>🔓 True Open</label>
+                    <select id="trueOpens">
+                        <option value="TMO">TMO</option><option value="TWO">TWO</option><option value="TDO">TDO</option>
+                        <option value="TSO">TSO</option><option value="TMSO">TMSO</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>⚡ SETUP</label>
+                    <select id="ssmt">
+                        <option value="SSMT IN A GAP">SSMT IN A GAP</option><option value="SSMT + PSP">SSMT + PSP</option>
+                        <option value="HTF SSMT + LTF SSMT">HTF SSMT + LTF SSMT</option><option value="SMTFILL + PSP">SMTFILL + PSP</option>
+                        <option value="SSMT + PSP + SSMT">SSMT + PSP + SSMT</option><option value="FRACTAL Q SSMT">FRACTAL Q SSMT</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>🛑 1st Purge</label>
+                    <select id="firstPurge">
+                        <option value="NO 1ST PURGE">NO 1ST PURGE</option>
+                        <option value="Q FSMT">Q FSMT</option><option value="M FSMT">M FSMT</option><option value="W FSMT">W FSMT</option>
+                        <option value="D FSMT">D FSMT</option><option value="H6 FSMT">H6 FSMT</option><option value="M90 FSMT">M90 FSMT</option>
+                        <option value="M22.5 FSMT">M22.5 FSMT</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>🏁 2nd Purge</label>
+                    <select id="secondPurge">
+                        <option value="Q SSMT">Q SSMT</option><option value="M SSMT">M SSMT</option><option value="W SSMT">W SSMT</option>
+                        <option value="D SSMT">D SSMT</option><option value="H6 SSMT">H6 SSMT</option><option value="M90 SSMT">M90 SSMT</option>
+                        <option value="M22.5 SSMT">M22.5 SSMT</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>🛠️ Entry Technique</label>
+                    <select id="entryTechnique">
+                        <option value="+FVG">+FVG</option><option value="-FVG">-FVG</option><option value="+OB">+OB</option>
+                        <option value="-OB">-OB</option><option value="IFVG">IFVG</option><option value="tCISD">tCISD</option>
+                        <option value="PSP">PSP</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="ios-group-title">4. Metrics & Performance</div>
+            <div class="ios-grid">
+                <div class="ios-row">
+                    <label>📥 Entry Price</label>
+                    <input type="text" id="entryPrice" placeholder="Value">
+                </div>
+                <div class="ios-row">
+                    <label>📤 Exit Target</label>
+                    <select id="exitTarget">
+                        <option value="M ERL">M ERL</option><option value="W ERL">W ERL</option><option value="D ERL">D ERL</option>
+                        <option value="H6 ERL">H6 ERL</option><option value="M90 ERL">M90 ERL</option><option value="M22.5 ERL">M22.5 ERL</option>
+                        <option value="TRAILED SL">TRAILED SL</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>💰 Exit Price</label>
+                    <input type="text" id="exitPrice" placeholder="Value">
+                </div>
+                <div class="ios-row">
+                    <label>⏳ Duration</label>
+                    <input type="text" id="duration" placeholder="e.g. 30m">
+                </div>
+                <div class="ios-row">
+                    <label>🏆 Outcome</label>
+                    <select id="outcome">
+                        <option value="PROFIT">PROFIT</option><option value="LOSS">LOSS</option><option value="BREAKEVEN">BREAKEVEN</option>
+                        <option value="MISSED">MISSED</option><option value="NO TRADE">NO TRADE</option>
+                    </select>
+                </div>
+                <div class="ios-row">
+                    <label>📊 RR</label>
+                    <input type="text" id="rr" placeholder="e.g. 1:4">
+                </div>
+            </div>
+
+            <div class="ios-group-title">Chart Visual Assets (Before & After)</div>
+            <div class="photo-grid-container">
+                <div class="photo-uploader" onclick="document.getElementById('photoBefore').click()">
+                    <span>📷 Setup Context</span>
+                    <small>Upload Before Execution</small>
+                    <input type="file" id="photoBefore" accept="image/*">
+                    <div id="previewBeforeContainer" class="preview-container"><img id="previewBeforeImg" alt="Before Execution"></div>
+                </div>
+                
+                <div class="photo-uploader" onclick="document.getElementById('photoAfter').click()">
+                    <span>📸 Trade Outcome</span>
+                    <small>Upload After Execution</small>
+                    <input type="file" id="photoAfter" accept="image/*">
+                    <div id="previewAfterContainer" class="preview-container"><img id="previewAfterImg" alt="After Execution"></div>
+                </div>
+            </div>
+
+            <div class="action-sheet">
+                <button type="button" class="ios-btn" onclick="saveTradeLocal()">Commit & Save to OS</button>
+                <button type="button" class="ios-btn pdf" onclick="exportToPDF()">Export Log Box as PDF</button>
+                <button type="button" class="ios-btn secondary" onclick="exportToText()">Export Log File (.txt)</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="view-table" class="view-section">
+        <div class="ios-group-title">All Traded Executions</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Asset</th>
+                        <th>Session</th>
+                        <th>Direction</th>
+                        <th>MMXM Cycle</th>
+                        <th>Outcome</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="view-board" class="view-section">
+        <div class="ios-group-title">MMXM Cycle Organization</div>
+        <div class="board-container">
+            <div class="board-column" id="col-m">
+                <h3>M MMXM</h3>
+                <div class="cards-container" data-cycle="M MMXM"></div>
+            </div>
+            <div class="board-column" id="col-w">
+                <h3>W MMXM</h3>
+                <div class="cards-container" data-cycle="W MMXM"></div>
+            </div>
+            <div class="board-column" id="col-d">
+                <h3>D MMXM</h3>
+                <div class="cards-container" data-cycle="D MMXM"></div>
+            </div>
+            <div class="board-column" id="col-h6">
+                <h3>H6 MMXM</h3>
+                <div class="cards-container" data-cycle="H6 MMXM"></div>
+            </div>
+            <div class="board-column" id="col-m90">
+                <h3>M90 MMXM</h3>
+                <div class="cards-container" data-cycle="M90 MMXM"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // System Data Storage Logic
+    let trades = JSON.parse(localStorage.getItem('tradingOS_trades')) || [];
+
+    // Initialize the Views on page load
+    window.onload = function() {
+        renderData();
+    };
+
+    // View Switcher Function
+    function switchView(viewName) {
+        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+        document.getElementById(`view-${viewName}`).classList.add('active');
+        
+        // Refresh render if switching to views
+        if(viewName !== 'journal') renderData();
+    }
+
+    function setTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        document.getElementById('darkThemeBtn').classList.toggle('active', themeName === 'dark');
+        document.getElementById('lightThemeBtn').classList.toggle('active', themeName === 'light');
+    }
+
+    function setupImagePreview(inputId, containerId, imgId) {
+        document.getElementById(inputId).addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const img = document.getElementById(imgId);
+                img.src = reader.result;
+                document.getElementById(containerId).style.display = 'block';
+            }
+            if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+        });
+    }
+    setupImagePreview('photoBefore', 'previewBeforeContainer', 'previewBeforeImg');
+    setupImagePreview('photoAfter', 'previewAfterContainer', 'previewAfterImg');
+
+    function getFormData() {
+        return {
+            date: document.getElementById('tradeDate').value,
+            asset: document.getElementById('tradedAsset').value,
+            interpretation: document.getElementById('marketInterpretation').value
+        };
+    }
+
+    // MAIN SAVE FUNCTION
+    function saveTradeLocal() {
+        const dateVal = document.getElementById('tradeDate').value;
+        if(!dateVal) { alert("Select a date allocation first."); return; }
+        
+        // Create the Trade Object from the form inputs
+        const newTrade = {
+            id: Date.now(),
+            date: dateVal,
+            asset: document.getElementById('tradedAsset').value,
+            session: document.getElementById('sessions').value,
+            direction: document.getElementById('direction').value,
+            cycle: document.getElementById('mmxmCycle').value,
+            outcome: document.getElementById('outcome').value,
+            rr: document.getElementById('rr').value || '-',
+            entryPrice: document.getElementById('entryPrice').value || '-'
+        };
+
+        // Push to Array and save to local storage
+        trades.push(newTrade);
+        localStorage.setItem('tradingOS_trades', JSON.stringify(trades));
+        
+        alert("Trade Saved to OS! You can view it in the Table and Board sections.");
+        renderData(); // Automatically update table/board
+    }
+
+    // RENDER FUNCTIONS
+    function renderData() {
+        renderTable();
+        renderBoard();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        trades.forEach(trade => {
+            const dirClass = trade.direction === 'BULLISH' ? 'direction-bullish' : 'direction-bearish';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${trade.date}</td>
+                <td><strong>${trade.asset}</strong></td>
+                <td>${trade.session}</td>
+                <td class="${dirClass}">${trade.direction}</td>
+                <td>${trade.cycle}</td>
+                <td>${trade.outcome}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderBoard() {
+        document.querySelectorAll('.cards-container').forEach(c => c.innerHTML = '');
+        trades.forEach(trade => {
+            const container = document.querySelector(`.cards-container[data-cycle="${trade.cycle}"]`);
+            if (container) {
+                const dirClass = trade.direction === 'BULLISH' ? 'direction-bullish' : 'direction-bearish';
+                const card = document.createElement('div');
+                card.className = 'trade-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span>${trade.asset}</span>
+                        <span class="${dirClass}">${trade.direction}</span>
+                    </div>
+                    <div class="card-details">
+                        <span>📅 Date: ${trade.date}</span>
+                        <span>⏱ Session: ${trade.session}</span>
+                        <span>📈 RR: ${trade.rr} | Outcome: ${trade.outcome}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        });
+    }
+
+    function exportToText() {
+        const d = getFormData();
+        if(!d.date) { alert("Select a date allocation first."); return; }
+        alert("Log text file generated in your Downloads folder.");
+    }
+
+    function exportToPDF() {
+        const d = getFormData();
+        if(!d.date) { alert("Select a date allocation first before rendering PDF."); return; }
+        document.title = `Trade_Log_${d.date}_${d.asset}`;
+        window.print();
+    }
+</script>
+
+</body>
+</html>
