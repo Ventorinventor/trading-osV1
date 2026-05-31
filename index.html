@@ -196,19 +196,14 @@ select, input[type="text"], input[type="date"], textarea {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-        }
 
-        input[type="date"] {
-            color: #0A84FF;
-            text-align: right;
-        }
-
-        input[type="text"] {
-            color: var(--input-text);
-        }
-        input[type="text"]::placeholder {
-            color: var(--placeholder);
-        }
+input[type="date"] {
+    min-width: 130px;
+    min-height: 30px;
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+}
 
         textarea {
             width: 100%;
